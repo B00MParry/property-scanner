@@ -1,5 +1,4 @@
 import { createTRPCRouter } from "./trpc";
-import { guestbookRouter } from "./routers/guestbook";
 import { propertyRouter } from "./routers/property";
 
 /**
@@ -8,7 +7,6 @@ import { propertyRouter } from "./routers/property";
  * All routers added in /api/routers should be manually added here
  */
 export const appRouter = createTRPCRouter({
-  guestbook: guestbookRouter,
   property: propertyRouter,
 });
 
