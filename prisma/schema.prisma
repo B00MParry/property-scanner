@@ -1,0 +1,40 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
+}
+
+model ProcessedProperty {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  price         Int?
+  name          String
+  address       String
+  bedroom       Int?
+  bathrooms     Int?
+  source        String
+  link          String
+  featuredImage String?
+  propertyId    String
+  Property      Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId])
+}
+
+model Property {
+  id                String              @id @default(cuid())
+  createdAt         DateTime            @default(now())
+  price             String
+  name              String
+  address           String
+  bedroom           String
+  bathrooms         String
+  source            String
+  link              String
+  featuredImage     String?
+  ProcessedProperty ProcessedProperty[]
+}
