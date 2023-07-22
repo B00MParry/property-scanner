@@ -14,7 +14,7 @@ export const Card = ({
   link,
 }: CardProps) => {
   return (
-    <a target="_blank" rel="noreferrer" href={link}>
+    <a target="_blank" rel="noreferrer" className="group" href={link}>
       <div className="relative mx-auto w-full max-w-sm pt-6">
         <div className="relative inline-block w-full transform transition-transform duration-300 ease-in-out">
           <div className="rounded-lg">
@@ -22,9 +22,9 @@ export const Card = ({
               {featuredImage && featuredImage !== "N/A" && (
                 <Image
                   src={featuredImage}
-                  className="aspect-video w-full object-cover"
-                  width="320"
-                  height="180"
+                  className="aspect-video w-full transform object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-110"
+                  width="384"
+                  height="216"
                   alt={name}
                 />
               )}

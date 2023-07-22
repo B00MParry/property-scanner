@@ -6,45 +6,39 @@ export const propertyRouter = createTRPCRouter({
     .input(
       z.object({
         page: z.number(),
-        amount: z.number(),
-        priceSort: z.union([z.literal("asc"), z.literal("desc")]),
-        source: z.string().optional()
+        take: z.number(),
+        sorting: z.union([z.literal("asc"), z.literal("desc")]),
+        source: z.string().optional(),
+        priceRange: z.tuple([z.number().nullable(), z.number().nullable()])
       })
     )
     .query(async ({ ctx, input }) => {
       try {
-        const params = {
-          take: input.amount,
-          skip: input.page * input.amount,
+        const paginationParams = {
+          take: input.take,
+          skip: input.page * input.take,
+        }
+        const filteringParams = {
           orderBy: {
-            price: input.priceSort
+            price: input.sorting
           },
           where: {
             source: {
               contains: input.source && input.source !== 'All' ? input.source : ''
-            }
-          }
+            },
+            ...((input.priceRange[0] || input.priceRange[1]) && {
+              price: {
+                ...(input.priceRange[0] && { gte: input.priceRange[0] }),
+                ...(input.priceRange[1] && { lte: input.priceRange[1] }),
+              }
+            })
+          },
         };
 
-        // await ctx.prisma.$transaction([
-        //   ctx.prisma.processedProperty.count({
-        //     where: {
-        //       name: { contains: 'search' },
-        //     },
-        //   }),
-        //   ctx.prisma.processedProperty.findMany({
-        //     where: {
-        //       name: { contains: 'search' },
-        //     },
-        //     orderBy: {
-        //       name: "asc",
-        //     },
-        //     take: 200,
-        //     skip: 10,
-        //   }),
-        // ]);
-
-        return await ctx.prisma.processedProperty.findMany(params)
+        return await ctx.prisma.$transaction([
+          ctx.prisma.processedProperty.count(filteringParams),
+          ctx.prisma.processedProperty.findMany({ ...paginationParams, ...filteringParams })
+        ])
       } catch (error) {
         console.log("error", error);
       }
@@ -52,11 +46,10 @@ export const propertyRouter = createTRPCRouter({
   getSources: publicProcedure
     .query(async ({ ctx }) => {
       try {
-        return await ctx.prisma.processedProperty.findMany({
-          distinct: ['source'],
-          select: {
-            source: true,
-          },
+        return await ctx.prisma.processedProperty.groupBy({
+          by: [
+            'source'
+          ]
         })
       } catch (error) {
         console.log("error", error);
