@@ -36,6 +36,18 @@ const config = {
         protocol: 'https',
         hostname: 'jade.uptech.mt',
       },
+      {
+        protocol: 'https',
+        hostname: 'www.english-efl.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'simon.untangledmedia.co.uk',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.maltaproperty.com',
+      }
     ],
   },
 };

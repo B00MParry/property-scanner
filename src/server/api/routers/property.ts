@@ -19,10 +19,13 @@ export const propertyRouter = createTRPCRouter({
           skip: input.page * input.take,
         }
         const filteringParams = {
-          orderBy: {
-            price: input.sorting
-          },
+          ...(input.sorting && {
+            orderBy: {
+              price: input.sorting
+            }
+          }),
           where: {
+            
             source: {
               contains: input.source && input.source !== 'All' ? input.source : ''
             },

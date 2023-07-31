@@ -4,6 +4,7 @@ import { api } from "../utils/api";
 import { Card } from "../components/Card";
 import { useRouter } from "next/router";
 import { routerQueryToString } from "../utils/helpers";
+import { Loading } from "../components/Loading";
 
 const sortingVals = ["asc", "desc"] as const;
 
@@ -201,7 +202,11 @@ const ProperyEntries = () => {
           onChange={(e) => priceRange(e, false)}
           type="number"
           placeholder="Min"
-          value={filters.priceRange[0] === null || filters.priceRange[0] === 0 ? "" : filters.priceRange[0]}
+          value={
+            filters.priceRange[0] === null || filters.priceRange[0] === 0
+              ? ""
+              : filters.priceRange[0]
+          }
           className="block max-w-[100px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
         <span className="mx-1 text-xs uppercase tracking-wider text-gray-900">
@@ -211,7 +216,11 @@ const ProperyEntries = () => {
           onChange={(e) => priceRange(e)}
           type="number"
           placeholder="Max"
-          value={filters.priceRange[1] === null || filters.priceRange[1] === 0  ? "" : filters.priceRange[1]}
+          value={
+            filters.priceRange[1] === null || filters.priceRange[1] === 0
+              ? ""
+              : filters.priceRange[1]
+          }
           className="block max-w-[100px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         />
       </div>
@@ -228,28 +237,26 @@ const ProperyEntries = () => {
           <option value="desc">DESC</option>
         </select>
       </div>
-      {sourceIsLoading ? (
-        <div>Fetching sources...</div>
-      ) : (
-        <div className="mb-8 flex items-baseline">
-          <label className="text-xs uppercase tracking-wider text-gray-900">
-            Source:{" "}
-          </label>
+
+      <div className="mb-8 flex items-center">
+        <label className="text-xs uppercase tracking-wider text-gray-900">
+          Source:{" "}
+        </label>
+        {!sourceIsLoading && sourceData && (
           <select
             onChange={(e) => getSource(e)}
             className="block cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500"
             value={filters.source}
           >
             <option value="All">All</option>
-            {sourceData &&
-              sourceData.map(({ source }, index) => (
-                <option key={index} value={source}>
-                  {source}
-                </option>
-              ))}
+            {sourceData.map(({ source }, index) => (
+              <option key={index} value={source}>
+                {source}
+              </option>
+            ))}
           </select>
-        </div>
-      )}
+        )}
+      </div>
 
       {totalCount !== undefined && (
         <span className="text-xs uppercase tracking-wider text-gray-900">
@@ -261,7 +268,7 @@ const ProperyEntries = () => {
         {Array.isArray(data) && !isLoading ? (
           data[1]?.map((entry, index) => <Card {...entry} key={index} />)
         ) : (
-          <div>Fetching Properties...</div>
+          <Loading />
         )}
       </div>
       <div className="flex justify-between">
