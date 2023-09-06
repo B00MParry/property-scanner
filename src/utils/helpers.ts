@@ -7,3 +7,5 @@ export const routerQueryToString = (queryParam: string | string[] | undefined) =
     }
     return queryParam;
 };
+
+export const clearFieldIfFalsey = (value: number | null) => (value === null || value === 0) ? "" : value

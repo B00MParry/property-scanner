@@ -47,6 +47,10 @@ const config = {
       {
         protocol: 'https',
         hostname: 'www.maltaproperty.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'franksalt.com.mt',
       }
     ],
   },

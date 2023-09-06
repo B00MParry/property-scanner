@@ -9,7 +9,11 @@ export const propertyRouter = createTRPCRouter({
         take: z.number(),
         sorting: z.union([z.literal("asc"), z.literal("desc")]),
         source: z.string().optional(),
-        priceRange: z.tuple([z.number().nullable(), z.number().nullable()])
+        maxPrice: z.number().nullable(),
+        minPrice: z.number().nullable(),
+        bedrooms: z.number().nullable(),
+        bathrooms: z.number().nullable(),
+        search: z.string()
       })
     )
     .query(async ({ ctx, input }) => {
@@ -25,14 +29,37 @@ export const propertyRouter = createTRPCRouter({
             }
           }),
           where: {
-            
             source: {
               contains: input.source && input.source !== 'All' ? input.source : ''
             },
-            ...((input.priceRange[0] || input.priceRange[1]) && {
+            ...(input.search && {
+              OR: [
+                {
+                  address: {
+                    contains: input.search
+                  }
+                },
+                {
+                  name: {
+                    contains: input.search
+                  }
+                }
+              ],
+            }),
+            ...(input.bathrooms && {
+              bathrooms: {
+                equals: input.bathrooms
+              }
+            }),
+            ...(input.bedrooms && {
+              bedroom: {
+                equals: input.bedrooms
+              }
+            }),
+            ...((input.minPrice || input.maxPrice) && {
               price: {
-                ...(input.priceRange[0] && { gte: input.priceRange[0] }),
-                ...(input.priceRange[1] && { lte: input.priceRange[1] }),
+                ...(input.minPrice && { gte: input.minPrice }),
+                ...(input.maxPrice && { lte: input.maxPrice }),
               }
             })
           },
@@ -40,22 +67,20 @@ export const propertyRouter = createTRPCRouter({
 
         return await ctx.prisma.$transaction([
           ctx.prisma.processedProperty.count(filteringParams),
-          ctx.prisma.processedProperty.findMany({ ...paginationParams, ...filteringParams })
+          ctx.prisma.processedProperty.findMany({ ...paginationParams, ...filteringParams }),
+          ctx.prisma.processedProperty.groupBy({
+            orderBy: {},
+            by: [
+              'source'
+            ]
+          })
         ])
       } catch (error) {
         console.log("error", error);
       }
     }),
-  getSources: publicProcedure
-    .query(async ({ ctx }) => {
-      try {
-        return await ctx.prisma.processedProperty.groupBy({
-          by: [
-            'source'
-          ]
-        })
-      } catch (error) {
-        console.log("error", error);
-      }
-    })
+
+  test: publicProcedure.query(() => {
+    return 'test'
+  })
 });

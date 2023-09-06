@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "../utils/api";
 import { Card } from "../components/Card";
 import { useRouter } from "next/router";
-import { routerQueryToString } from "../utils/helpers";
+import { clearFieldIfFalsey, routerQueryToString } from "../utils/helpers";
 import { Loading } from "../components/Loading";
 
 const sortingVals = ["asc", "desc"] as const;
@@ -12,7 +12,12 @@ type FiltersType = {
   page: number;
   sorting: (typeof sortingVals)[number];
   source: string;
-  priceRange: [number | null, number | null];
+  minPrice: number | null;
+  maxPrice: number | null;
+  itemsPerPage: number;
+  bedrooms: number;
+  bathrooms: number;
+  search: string;
 };
 
 const ProperyEntries = () => {
@@ -22,149 +27,88 @@ const ProperyEntries = () => {
     page: 0,
     sorting: "asc",
     source: "All",
-    priceRange: [null, null],
+    minPrice: null,
+    maxPrice: null,
+    itemsPerPage: 20,
+    bedrooms: 0,
+    bathrooms: 0,
+    search: "",
   });
 
-  const itemsToShow = 24;
-  const { data: sourceData, isLoading: sourceIsLoading } =
-    api.property.getSources.useQuery();
   const { data, isLoading } = api.property.getPage.useQuery({
     page: filters.page,
-    take: itemsToShow,
+    take: filters.itemsPerPage,
     sorting: filters.sorting,
     source: filters.source,
-    priceRange: filters.priceRange,
+    minPrice: filters.minPrice,
+    maxPrice: filters.maxPrice,
+    bedrooms: filters.bedrooms,
+    bathrooms: filters.bathrooms,
+    search: filters.search,
   });
-  const totalCount = Array.isArray(data) ? data[0] : 0;
+
+  const totalCount = data ? data[0] : 0;
 
   useEffect(() => {
-    if (!router.isReady) return;
+    if (Object.keys(router.query).length === 0) return;
 
-    router.query?.page &&
-      setFilters((prevState) => {
-        return {
-          ...prevState,
-          page: Number(routerQueryToString(router.query.page)) || 0,
-        };
-      });
-
-    router.query?.sort &&
-      setFilters((prevState) => {
-        return {
-          ...prevState,
+    setFilters((prevState) => {
+      return {
+        ...prevState,
+        ...(router.query.page && {
+          page: Number(routerQueryToString(router.query.page)),
+        }),
+        ...(router.query.sorting && {
           sorting: routerQueryToString(
-            router.query.sort
+            router.query.sorting
           ) as FiltersType["sorting"],
-        };
-      });
-
-    router.query?.source &&
-      setFilters((prevState) => {
-        return {
-          ...prevState,
+        }),
+        ...(router.query.source && {
           source: routerQueryToString(router.query.source) || "All",
-        };
-      });
+        }),
+        ...(router.query.maxPrice && {
+          maxPrice: Number(routerQueryToString(router.query.maxPrice)),
+        }),
+        ...(router.query.minPrice && {
+          minPrice: Number(routerQueryToString(router.query.minPrice)),
+        }),
+        ...(router.query.search && {
+          search: routerQueryToString(router.query.search) || "",
+        }),
+      };
+    });
+  }, [router.query]);
 
-    router.query?.maxPrice &&
-      setFilters((prevState) => {
-        return {
-          ...prevState,
-          priceRange: [
-            prevState.priceRange[0],
-            Number(routerQueryToString(router.query.maxPrice)),
-          ],
-        };
-      });
-
-    router.query?.minPrice &&
-      setFilters((prevState) => {
-        return {
-          ...prevState,
-          priceRange: [
-            Number(routerQueryToString(router.query.minPrice)),
-            prevState.priceRange[1],
-          ],
-        };
-      });
-  }, [router]);
-
-  const sorting = (e: ChangeEvent<HTMLSelectElement>) => {
+  const pushToRouter = (params: typeof router.query) => {
     router
       .push(
         {
           pathname: "/",
-          query: { ...router.query, page: 0, sort: e.target.value },
+          query: { ...router.query, ...params },
         },
         undefined,
         { shallow: true }
       )
       .catch((e) => console.error(e));
-
-    setFilters({
-      ...filters,
-      page: 0,
-      sorting: e.target.value as FiltersType["sorting"],
-    });
   };
 
-  const priceRange = (e: ChangeEvent<HTMLInputElement>, max = true) => {
-    router
-      .push(
-        {
-          pathname: "/",
-          query: {
-            ...router.query,
-            page: 0,
-            [max ? "maxPrice" : "minPrice"]: e.target.value,
-          },
-        },
-        undefined,
-        { shallow: true }
-      )
-      .catch((e) => console.error(e));
+  const changeHandler = (
+    e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
+  ) => {
+    pushToRouter({ page: "0", [e.target.name]: e.target.value });
 
-    setFilters({
-      ...filters,
+    setFilters((prevState) => ({
+      ...prevState,
       page: 0,
-      priceRange: max
-        ? [filters.priceRange[0], Number(e.target.value)]
-        : [Number(e.target.value), filters.priceRange[1]],
-    });
-  };
-
-  const getSource = (e: ChangeEvent<HTMLSelectElement>) => {
-    router
-      .push(
-        {
-          pathname: "/",
-          query: { ...router.query, page: 0, source: e.target.value },
-        },
-        undefined,
-        { shallow: true }
-      )
-      .catch((e) => console.error(e));
-
-    setFilters({
-      ...filters,
-      page: 0,
-      source: e.target.value as FiltersType["sorting"],
-    });
+      [e.target.name]:
+        e.target.type === "number" ? Number(e.target.value) : e.target.value,
+    }));
   };
 
   const toggleNextPage = () => {
-    if (itemsToShow * (filters.page + 1) >= totalCount) return;
+    if (filters.itemsPerPage * (filters.page + 1) >= totalCount) return;
 
-    router
-      .push(
-        {
-          pathname: "/",
-          query: { ...router.query, page: filters.page + 1 },
-        },
-        undefined,
-        { shallow: true }
-      )
-      .catch((e) => console.error(e));
+    pushToRouter({ page: `${filters.page + 1}` });
 
     setFilters({
       ...filters,
@@ -174,16 +118,7 @@ const ProperyEntries = () => {
 
   const togglePrevPage = () => {
     if (filters.page > 0) {
-      router
-        .push(
-          {
-            pathname: "/",
-            query: { ...router.query, page: filters.page - 1 },
-          },
-          undefined,
-          { shallow: true }
-        )
-        .catch((e) => console.error(e));
+      pushToRouter({ page: `${filters.page - 1}` });
 
       setFilters({
         ...filters,
@@ -196,32 +131,39 @@ const ProperyEntries = () => {
     <>
       <div className="mb-2 flex items-baseline">
         <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
+          Search:
+        </label>
+        <input
+          onChange={(e) => changeHandler(e)}
+          name="search"
+          value={filters.search}
+          type="search"
+          placeholder="Birkirkara"
+          className="block max-w-[120px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+      </div>
+      <div className="mb-2 flex items-baseline">
+        <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
           Price Range:
         </label>
         <input
-          onChange={(e) => priceRange(e, false)}
-          type="number"
-          placeholder="Min"
-          value={
-            filters.priceRange[0] === null || filters.priceRange[0] === 0
-              ? ""
-              : filters.priceRange[0]
-          }
           className="block max-w-[100px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          onChange={(e) => changeHandler(e)}
+          type="number"
+          name="minPrice"
+          placeholder="Min"
+          value={clearFieldIfFalsey(filters.minPrice)}
         />
         <span className="mx-1 text-xs uppercase tracking-wider text-gray-900">
           to
         </span>
         <input
-          onChange={(e) => priceRange(e)}
-          type="number"
-          placeholder="Max"
-          value={
-            filters.priceRange[1] === null || filters.priceRange[1] === 0
-              ? ""
-              : filters.priceRange[1]
-          }
           className="block max-w-[100px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          onChange={(e) => changeHandler(e)}
+          type="number"
+          name="maxPrice"
+          placeholder="Max"
+          value={clearFieldIfFalsey(filters.maxPrice)}
         />
       </div>
       <div className="mb-2 flex items-baseline">
@@ -229,7 +171,8 @@ const ProperyEntries = () => {
           Price Sorting:
         </label>
         <select
-          onChange={(e) => sorting(e)}
+          onChange={(e) => changeHandler(e)}
+          name="sorting"
           className="block cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500"
           value={filters.sorting || "asc"}
         >
@@ -238,18 +181,47 @@ const ProperyEntries = () => {
         </select>
       </div>
 
+      <div className="mb-2 flex items-baseline">
+        <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
+          Bedrooms:
+        </label>
+        <input
+          onChange={(e) => changeHandler(e)}
+          name="bedrooms"
+          value={clearFieldIfFalsey(filters.bedrooms)}
+          type="number"
+          placeholder="Any"
+          className="block max-w-[50px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+      </div>
+
+      <div className="mb-2 flex items-baseline">
+        <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
+          Bathrooms:
+        </label>
+        <input
+          onChange={(e) => changeHandler(e)}
+          name="bathrooms"
+          value={clearFieldIfFalsey(filters.bathrooms)}
+          type="number"
+          placeholder="Any"
+          className="block max-w-[50px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        />
+      </div>
+
       <div className="mb-8 flex items-center">
         <label className="text-xs uppercase tracking-wider text-gray-900">
           Source:{" "}
         </label>
-        {!sourceIsLoading && sourceData && (
+        {!isLoading && data && (
           <select
-            onChange={(e) => getSource(e)}
+            name="source"
+            onChange={(e) => changeHandler(e)}
             className="block cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500"
             value={filters.source}
           >
             <option value="All">All</option>
-            {sourceData.map(({ source }, index) => (
+            {data[2].map(({ source }, index) => (
               <option key={index} value={source}>
                 {source}
               </option>
@@ -266,15 +238,25 @@ const ProperyEntries = () => {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {Array.isArray(data) && !isLoading ? (
-          data[1]?.map((entry, index) => <Card {...entry} key={index} />)
+          data[1].map((entry, index) => <Card {...entry} key={index} />)
         ) : (
           <Loading />
         )}
       </div>
       <div className="flex justify-between">
-        <span onClick={togglePrevPage}>{`< Prev`}</span>
-        <span>page: {filters.page}</span>
-        <span onClick={toggleNextPage}>{`Next >`}</span>
+        <span
+          className={filters.page > 0 ? "cursor-pointer" : "invisible"}
+          onClick={togglePrevPage}
+        >{`< Prev`}</span>
+        <span>page: {filters.page + 1} / {Math.ceil(totalCount / filters.itemsPerPage)}</span>
+        <span
+          className={
+            filters.itemsPerPage * (filters.page + 1) <= totalCount
+              ? "cursor-pointer"
+              : "invisible"
+          }
+          onClick={toggleNextPage}
+        >{`Next >`}</span>
       </div>
     </>
   );
