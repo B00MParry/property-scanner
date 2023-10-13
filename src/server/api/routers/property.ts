@@ -20,7 +20,7 @@ export const propertyRouter = createTRPCRouter({
       try {
         const paginationParams = {
           take: input.take,
-          skip: input.page * input.take,
+          skip: (input.page - 1) * input.take,
         }
         const filteringParams = {
           ...(input.sorting && {

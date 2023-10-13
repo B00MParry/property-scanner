@@ -1,10 +1,12 @@
 import type { ChangeEvent } from "react";
 import { useEffect, useState } from "react";
-import { api } from "../utils/api";
-import { Card } from "../components/Card";
 import { useRouter } from "next/router";
+import { api } from "../utils/api";
 import { clearFieldIfFalsey, routerQueryToString } from "../utils/helpers";
-import { Loading } from "../components/Loading";
+import Card from "../components/Card";
+import Loading from "../components/Loading";
+import Icon from "../components/Icon";
+import Layout from "../components/Layout";
 
 const sortingVals = ["asc", "desc"] as const;
 
@@ -20,11 +22,11 @@ type FiltersType = {
   search: string;
 };
 
-const ProperyEntries = () => {
+const Home = () => {
   const router = useRouter();
 
   const [filters, setFilters] = useState<FiltersType>({
-    page: 0,
+    page: 1,
     sorting: "asc",
     source: "All",
     minPrice: null,
@@ -95,11 +97,11 @@ const ProperyEntries = () => {
   const changeHandler = (
     e: ChangeEvent<HTMLSelectElement | HTMLInputElement>
   ) => {
-    pushToRouter({ page: "0", [e.target.name]: e.target.value });
+    pushToRouter({ page: "1", [e.target.name]: e.target.value });
 
     setFilters((prevState) => ({
       ...prevState,
-      page: 0,
+      page: 1,
       [e.target.name]:
         e.target.type === "number" ? Number(e.target.value) : e.target.value,
     }));
@@ -117,7 +119,7 @@ const ProperyEntries = () => {
   };
 
   const togglePrevPage = () => {
-    if (filters.page > 0) {
+    if (filters.page > 1) {
       pushToRouter({ page: `${filters.page - 1}` });
 
       setFilters({
@@ -128,7 +130,7 @@ const ProperyEntries = () => {
   };
 
   return (
-    <>
+    <Layout>
       <div className="mb-2 flex items-baseline">
         <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
           Search:
@@ -238,36 +240,28 @@ const ProperyEntries = () => {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {Array.isArray(data) && !isLoading ? (
-          data[1].map((entry, index) => <Card {...entry} key={index} />)
+          data[1].map((entry) => <Card {...entry} key={entry.id} />)
         ) : (
           <Loading />
         )}
       </div>
       <div className="flex justify-between">
         <span
-          className={filters.page > 0 ? "cursor-pointer" : "invisible"}
+          className={filters.page > 1 ? "cursor-pointer" : "invisible"}
           onClick={togglePrevPage}
         >{`< Prev`}</span>
-        <span>page: {filters.page + 1} / {Math.ceil(totalCount / filters.itemsPerPage)}</span>
+        <span>page: {filters.page} / {Math.ceil(totalCount / filters.itemsPerPage)}</span>
         <span
           className={
-            filters.itemsPerPage * (filters.page + 1) <= totalCount
+            filters.itemsPerPage * (filters.page) <= totalCount
               ? "cursor-pointer"
               : "invisible"
           }
           onClick={toggleNextPage}
         >{`Next >`}</span>
       </div>
-    </>
+    </Layout>
   );
 };
 
-const Home = () => {
-  return (
-    <main className="p-10">
-      <h1 className="pb-10 text-3xl">Property Scanner</h1>
-      <ProperyEntries />
-    </main>
-  );
-};
 export default Home;

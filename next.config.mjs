@@ -51,7 +51,11 @@ const config = {
       {
         protocol: 'https',
         hostname: 'franksalt.com.mt',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.maltapark.com',
+      },
     ],
   },
 };

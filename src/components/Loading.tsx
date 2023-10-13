@@ -1,4 +1,4 @@
-export const Loading = () => {
+const Loading = () => {
   return (
     <div role="status">
       <svg
@@ -21,3 +21,5 @@ export const Loading = () => {
     </div>
   );
 };
+
+export default Loading;

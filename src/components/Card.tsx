@@ -1,9 +1,9 @@
 import type { ProcessedProperty } from "@prisma/client";
-import Image from "next/image";
+import ImageWithFallback from "./ImageWithFallback";
 
 type CardProps = Omit<ProcessedProperty, "createdAt" | "id" | "propertyId">;
 
-export const Card = ({
+const Card = ({
   name,
   price,
   featuredImage,
@@ -20,7 +20,7 @@ export const Card = ({
           <div className="rounded-lg">
             <div className="relative flex justify-center overflow-hidden rounded-lg">
               {featuredImage && featuredImage !== "N/A" && (
-                <Image
+                <ImageWithFallback
                   src={featuredImage}
                   className="aspect-video w-full transform object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-110"
                   width="384"
@@ -75,3 +75,5 @@ export const Card = ({
     </a>
   );
 };
+
+export default Card;
