@@ -5,7 +5,6 @@ import { api } from "../utils/api";
 import { clearFieldIfFalsey, routerQueryToString } from "../utils/helpers";
 import Card from "../components/Card";
 import Loading from "../components/Loading";
-import Icon from "../components/Icon";
 import Layout from "../components/Layout";
 
 const sortingVals = ["asc", "desc"] as const;
@@ -131,134 +130,139 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className="mb-2 flex items-baseline">
-        <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
-          Search:
-        </label>
-        <input
-          onChange={(e) => changeHandler(e)}
-          name="search"
-          value={filters.search}
-          type="search"
-          placeholder="Birkirkara"
-          className="block max-w-[120px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-        />
-      </div>
-      <div className="mb-2 flex items-baseline">
-        <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
-          Price Range:
-        </label>
-        <input
-          className="block max-w-[100px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          onChange={(e) => changeHandler(e)}
-          type="number"
-          name="minPrice"
-          placeholder="Min"
-          value={clearFieldIfFalsey(filters.minPrice)}
-        />
-        <span className="mx-1 text-xs uppercase tracking-wider text-gray-900">
-          to
-        </span>
-        <input
-          className="block max-w-[100px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-          onChange={(e) => changeHandler(e)}
-          type="number"
-          name="maxPrice"
-          placeholder="Max"
-          value={clearFieldIfFalsey(filters.maxPrice)}
-        />
-      </div>
-      <div className="mb-2 flex items-baseline">
-        <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
-          Price Sorting:
-        </label>
-        <select
-          onChange={(e) => changeHandler(e)}
-          name="sorting"
-          className="block cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500"
-          value={filters.sorting || "asc"}
-        >
-          <option value="asc">ASC</option>
-          <option value="desc">DESC</option>
-        </select>
-      </div>
-
-      <div className="mb-2 flex items-baseline">
-        <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
-          Bedrooms:
-        </label>
-        <input
-          onChange={(e) => changeHandler(e)}
-          name="bedrooms"
-          value={clearFieldIfFalsey(filters.bedrooms)}
-          type="number"
-          placeholder="Any"
-          className="block max-w-[50px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-        />
-      </div>
-
-      <div className="mb-2 flex items-baseline">
-        <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
-          Bathrooms:
-        </label>
-        <input
-          onChange={(e) => changeHandler(e)}
-          name="bathrooms"
-          value={clearFieldIfFalsey(filters.bathrooms)}
-          type="number"
-          placeholder="Any"
-          className="block max-w-[50px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-        />
-      </div>
-
-      <div className="mb-8 flex items-center">
-        <label className="text-xs uppercase tracking-wider text-gray-900">
-          Source:{" "}
-        </label>
-        {!isLoading && data && (
-          <select
-            name="source"
+      <div className="mx-auto max-w-screen-xl p-4">
+        <div className="mb-2 flex items-baseline">
+          <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
+            Search:
+          </label>
+          <input
             onChange={(e) => changeHandler(e)}
+            name="search"
+            value={filters.search}
+            type="search"
+            placeholder="Birkirkara"
+            className="block max-w-[120px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          />
+        </div>
+        <div className="mb-2 flex items-baseline">
+          <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
+            Price Range:
+          </label>
+          <input
+            className="block max-w-[100px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            onChange={(e) => changeHandler(e)}
+            type="number"
+            name="minPrice"
+            placeholder="Min"
+            value={clearFieldIfFalsey(filters.minPrice)}
+          />
+          <span className="mx-1 text-xs uppercase tracking-wider text-gray-900">
+            to
+          </span>
+          <input
+            className="block max-w-[100px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            onChange={(e) => changeHandler(e)}
+            type="number"
+            name="maxPrice"
+            placeholder="Max"
+            value={clearFieldIfFalsey(filters.maxPrice)}
+          />
+        </div>
+        <div className="mb-2 flex items-baseline">
+          <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
+            Price Sorting:
+          </label>
+          <select
+            onChange={(e) => changeHandler(e)}
+            name="sorting"
             className="block cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500"
-            value={filters.source}
+            value={filters.sorting || "asc"}
           >
-            <option value="All">All</option>
-            {data[2].map(({ source }, index) => (
-              <option key={index} value={source}>
-                {source}
-              </option>
-            ))}
+            <option value="asc">ASC</option>
+            <option value="desc">DESC</option>
           </select>
-        )}
-      </div>
+        </div>
 
-      {totalCount !== undefined && (
-        <span className="text-xs uppercase tracking-wider text-gray-900">
-          Total Results: {totalCount}
-        </span>
-      )}
+        <div className="mb-2 flex items-baseline">
+          <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
+            Bedrooms:
+          </label>
+          <input
+            onChange={(e) => changeHandler(e)}
+            name="bedrooms"
+            value={clearFieldIfFalsey(filters.bedrooms)}
+            type="number"
+            placeholder="Any"
+            className="block max-w-[50px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          />
+        </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {Array.isArray(data) && !isLoading ? (
-          data[1].map((entry) => <Card {...entry} key={entry.id} />)
-        ) : (
-          <Loading />
+        <div className="mb-2 flex items-baseline">
+          <label className="mr-4 text-xs uppercase tracking-wider text-gray-900">
+            Bathrooms:
+          </label>
+          <input
+            onChange={(e) => changeHandler(e)}
+            name="bathrooms"
+            value={clearFieldIfFalsey(filters.bathrooms)}
+            type="number"
+            placeholder="Any"
+            className="block max-w-[50px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+          />
+        </div>
+
+        <div className="mb-8 flex items-center">
+          <label className="text-xs uppercase tracking-wider text-gray-900">
+            Source:{" "}
+          </label>
+          {!isLoading && data && (
+            <select
+              name="source"
+              onChange={(e) => changeHandler(e)}
+              className="block cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500"
+              value={filters.source}
+            >
+              <option value="All">All</option>
+              {data[2].map(({ source }, index) => (
+                <option key={index} value={source}>
+                  {source}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        {totalCount !== undefined && (
+          <span className="text-xs uppercase tracking-wider text-gray-900">
+            Total Results: {totalCount}
+          </span>
         )}
-      </div>
-      <div className="flex justify-between">
-        <span
-          className={filters.page > 1 ? "cursor-pointer" : "invisible"}
-          onClick={togglePrevPage}
-        >{`< Prev`}</span>
-        <span>page: {filters.page} / {Math.ceil(totalCount / filters.itemsPerPage)}</span>
-        <span
-          className={
-            filters.itemsPerPage * (filters.page) <= totalCount
-              ? "cursor-pointer"
-              : "invisible"
-          }
-          onClick={toggleNextPage}
-        >{`Next >`}</span>
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.isArray(data) && !isLoading ? (
+            data[1].map((entry) => <Card {...entry} key={entry.id} />)
+          ) : (
+            <Loading />
+          )}
+        </div>
+        <div className="flex justify-between">
+          <span
+            className={filters.page > 1 ? "cursor-pointer" : "invisible"}
+            onClick={togglePrevPage}
+          >{`< Prev`}</span>
+          <span>
+            page: {filters.page} /{" "}
+            {Math.ceil(totalCount / filters.itemsPerPage)}
+          </span>
+          <span
+            className={
+              filters.itemsPerPage * filters.page <= totalCount
+                ? "cursor-pointer"
+                : "invisible"
+            }
+            onClick={toggleNextPage}
+          >{`Next >`}</span>
+        </div>
       </div>
     </Layout>
   );

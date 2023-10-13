@@ -1,18 +1,23 @@
-import Footer from "./Footer";
+import { type Metadata } from "next";
+import { fontVariables } from "../utils/fonts";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 
-type LayoutProps = {
+export const metadata: Metadata = {
+  title: "Spin City",
+  description: "Frontend test",
+};
+
+export default function RootLayout({
+  children,
+}: {
   children: React.ReactNode;
-};
-
-const Layout = ({ children }: LayoutProps) => {
+}) {
   return (
-    <>
+    <div className={`${fontVariables} font-sans`}>
       <Navbar />
-      <main className="p-10">{children}</main>
+      <div className="flex-grow">{children}</div>
       <Footer />
-    </>
+    </div>
   );
-};
-
-export default Layout;
+}

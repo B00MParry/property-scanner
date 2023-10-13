@@ -11,7 +11,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-white border-gray-200 drop-shadow-lg">
       <div className="flex flex-wrap items-center justify-between max-w-screen-xl p-4 mx-auto">
         <Link href="/">
-          <span className="self-center ml-2 font-display text-2xl whitespace-nowrap tracking-wider">
+          <span className="self-center ml-2 font-display text-xl whitespace-nowrap tracking-wider">
             ☄️ Property Scanner
           </span>
         </Link>

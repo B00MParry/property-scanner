@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="w-full max-w-screen-xl mx-auto p-4">
         <div className="sm:flex sm:items-center sm:justify-between">
           <Link href="/">
-            <span className="text-white self-center mb-4 block md:mb-0 md:ml-2 font-display text-2xl whitespace-nowrap tracking-wider">
+            <span className="text-white self-center mb-4 block md:mb-0 md:ml-2 font-display text-xl whitespace-nowrap tracking-wider">
             ☄️ Property Scanner
             </span>
           </Link>
