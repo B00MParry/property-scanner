@@ -21,20 +21,22 @@ type FiltersType = {
   search: string;
 };
 
+const initialState: FiltersType = {
+  page: 1,
+  sorting: "asc",
+  source: "All",
+  minPrice: null,
+  maxPrice: null,
+  itemsPerPage: 20,
+  bedrooms: 0,
+  bathrooms: 0,
+  search: "",
+};
+
 const Home = () => {
   const router = useRouter();
 
-  const [filters, setFilters] = useState<FiltersType>({
-    page: 1,
-    sorting: "asc",
-    source: "All",
-    minPrice: null,
-    maxPrice: null,
-    itemsPerPage: 20,
-    bedrooms: 0,
-    bathrooms: 0,
-    search: "",
-  });
+  const [filters, setFilters] = useState<FiltersType>({ ...initialState });
 
   const { data, isLoading } = api.property.getPage.useQuery({
     page: filters.page,
@@ -58,24 +60,44 @@ const Home = () => {
           ? {
               page: Number(routerQueryToString(router.query.page)),
             }
-          : { page: 1 }),
-        ...(router.query.sorting && {
-          sorting: routerQueryToString(
-            router.query.sorting
-          ) as FiltersType["sorting"],
-        }),
-        ...(router.query.source && {
-          source: routerQueryToString(router.query.source) || "All",
-        }),
-        ...(router.query.maxPrice && {
-          maxPrice: Number(routerQueryToString(router.query.maxPrice)),
-        }),
-        ...(router.query.minPrice && {
-          minPrice: Number(routerQueryToString(router.query.minPrice)),
-        }),
-        ...(router.query.search && {
-          search: routerQueryToString(router.query.search) || "",
-        }),
+          : { page: initialState.page }),
+        ...(router.query.sorting
+          ? {
+              sorting: routerQueryToString(
+                router.query.sorting
+              ) as FiltersType["sorting"],
+            }
+          : {
+              sorting: initialState.sorting,
+            }),
+        ...(router.query.source
+          ? {
+              source: routerQueryToString(router.query.source) || "All",
+            }
+          : {
+              source: initialState.source,
+            }),
+        ...(router.query.maxPrice
+          ? {
+              maxPrice: Number(routerQueryToString(router.query.maxPrice)),
+            }
+          : {
+              maxPrice: initialState.maxPrice,
+            }),
+        ...(router.query.minPrice
+          ? {
+              minPrice: Number(routerQueryToString(router.query.minPrice)),
+            }
+          : {
+              minPrice: initialState.minPrice,
+            }),
+        ...(router.query.search
+          ? {
+              search: routerQueryToString(router.query.search) || "",
+            }
+          : {
+              search: initialState.search,
+            }),
       };
     });
   }, [router.query]);
