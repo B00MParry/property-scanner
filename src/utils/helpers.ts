@@ -15,3 +15,11 @@ export const routerQueryToString = (queryParam: string | string[] | undefined) =
 
 export const clearFieldIfFalsey = (value: number | null) => (value === null || value === 0) ? "" : value
 
+// expands object types one level deep
+export type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
+
+// expands object types recursively
+export type ExpandRecursively<T> = T extends object
+    ? T extends infer O ? { [K in keyof O]: ExpandRecursively<O[K]> } : never
+    : T;
+

@@ -6,12 +6,11 @@ import { clearFieldIfFalsey, routerQueryToString } from "../utils/helpers";
 import Card from "../components/Card";
 import Layout from "../components/Layout";
 import { Skeleton } from "../components/Skeleton";
-
-const sortingVals = ["asc", "desc"] as const;
+import { urlSearchParams } from "../utils/constants";
 
 type FiltersType = {
   page: number;
-  sorting: (typeof sortingVals)[number];
+  sorting: "asc" | "desc";
   source: string;
   minPrice: number | null;
   maxPrice: number | null;
@@ -38,68 +37,62 @@ const Home = () => {
 
   const [filters, setFilters] = useState<FiltersType>({ ...initialState });
 
+  const {
+    page,
+    sorting,
+    source,
+    minPrice,
+    maxPrice,
+    itemsPerPage,
+    bedrooms,
+    bathrooms,
+    search,
+  } = filters;
+
   const { data, isLoading } = api.property.getPage.useQuery({
-    page: filters.page,
-    take: filters.itemsPerPage,
-    sorting: filters.sorting,
-    source: filters.source,
-    minPrice: filters.minPrice,
-    maxPrice: filters.maxPrice,
-    bedrooms: filters.bedrooms,
-    bathrooms: filters.bathrooms,
-    search: filters.search,
+    take: itemsPerPage,
+    page,
+    sorting,
+    source,
+    minPrice,
+    maxPrice,
+    bedrooms,
+    bathrooms,
+    search,
   });
 
   const totalCount = data ? data[0] : 0;
 
+  const updateFilters = (filters: Partial<FiltersType>) => {
+    setFilters((prevState) => ({
+      ...prevState,
+      ...filters,
+    }));
+  };
+
   useEffect(() => {
-    setFilters((prevState) => {
-      return {
-        ...prevState,
-        ...(router.query.page
-          ? {
-              page: Number(routerQueryToString(router.query.page)),
-            }
-          : { page: initialState.page }),
-        ...(router.query.sorting
-          ? {
-              sorting: routerQueryToString(
-                router.query.sorting
-              ) as FiltersType["sorting"],
-            }
-          : {
-              sorting: initialState.sorting,
-            }),
-        ...(router.query.source
-          ? {
-              source: routerQueryToString(router.query.source) || "All",
-            }
-          : {
-              source: initialState.source,
-            }),
-        ...(router.query.maxPrice
-          ? {
-              maxPrice: Number(routerQueryToString(router.query.maxPrice)),
-            }
-          : {
-              maxPrice: initialState.maxPrice,
-            }),
-        ...(router.query.minPrice
-          ? {
-              minPrice: Number(routerQueryToString(router.query.minPrice)),
-            }
-          : {
-              minPrice: initialState.minPrice,
-            }),
-        ...(router.query.search
-          ? {
-              search: routerQueryToString(router.query.search) || "",
-            }
-          : {
-              search: initialState.search,
-            }),
-      };
-    });
+    const newFilters: Partial<FiltersType> = urlSearchParams.reduce(
+      (acc, { name, type }) => {
+        let value = initialState[name as keyof FiltersType];
+
+        if (router.query[name]) {
+          value =
+            type === "number"
+              ? Number(routerQueryToString(router.query[name]))
+              : routerQueryToString(router.query[name]);
+        }
+
+        return {
+          ...acc,
+          ...{
+            [name]: value,
+          },
+        };
+      },
+      {}
+    );
+
+    updateFilters(newFilters);
   }, [router.query]);
 
   const pushToRouter = (params: typeof router.query) => {
@@ -120,29 +113,25 @@ const Home = () => {
   ) => {
     pushToRouter({ page: "1", [e.target.name]: e.target.value });
 
-    setFilters((prevState) => ({
-      ...prevState,
+    updateFilters({
       page: 1,
       [e.target.name]:
         e.target.type === "number" ? Number(e.target.value) : e.target.value,
-    }));
+    });
   };
 
   const togglePage = (next = true) => {
     const notCondition = next
-      ? filters.itemsPerPage * (filters.page + 1) >= totalCount
-      : filters.page <= 1;
+      ? itemsPerPage * (page + 1) >= totalCount
+      : page <= 1;
 
-    const nextPage = next ? filters.page + 1 : filters.page - 1;
+    const nextPage = next ? page + 1 : page - 1;
 
     if (notCondition) return;
 
     pushToRouter({ page: `${nextPage}` });
 
-    setFilters({
-      ...filters,
-      page: nextPage,
-    });
+    updateFilters({ page: nextPage });
   };
 
   return (
@@ -155,7 +144,7 @@ const Home = () => {
           <input
             onChange={(e) => changeHandler(e)}
             name="search"
-            value={filters.search}
+            value={search}
             type="search"
             placeholder="Birkirkara"
             className="block max-w-[120px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
@@ -171,7 +160,7 @@ const Home = () => {
             type="number"
             name="minPrice"
             placeholder="Min"
-            value={clearFieldIfFalsey(filters.minPrice)}
+            value={clearFieldIfFalsey(minPrice)}
           />
           <span className="mx-1 text-xs uppercase tracking-wider text-gray-900">
             to
@@ -182,7 +171,7 @@ const Home = () => {
             type="number"
             name="maxPrice"
             placeholder="Max"
-            value={clearFieldIfFalsey(filters.maxPrice)}
+            value={clearFieldIfFalsey(maxPrice)}
           />
         </div>
         <div className="mb-2 flex items-baseline">
@@ -193,7 +182,7 @@ const Home = () => {
             onChange={(e) => changeHandler(e)}
             name="sorting"
             className="block cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500"
-            value={filters.sorting || "asc"}
+            value={sorting || "asc"}
           >
             <option value="asc">ASC</option>
             <option value="desc">DESC</option>
@@ -207,7 +196,7 @@ const Home = () => {
           <input
             onChange={(e) => changeHandler(e)}
             name="bedrooms"
-            value={clearFieldIfFalsey(filters.bedrooms)}
+            value={clearFieldIfFalsey(bedrooms)}
             type="number"
             placeholder="Any"
             className="block max-w-[50px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
@@ -221,7 +210,7 @@ const Home = () => {
           <input
             onChange={(e) => changeHandler(e)}
             name="bathrooms"
-            value={clearFieldIfFalsey(filters.bathrooms)}
+            value={clearFieldIfFalsey(bathrooms)}
             type="number"
             placeholder="Any"
             className="block max-w-[50px] cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none [appearance:textfield] focus:border-blue-500 focus:ring-blue-500 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
@@ -237,7 +226,7 @@ const Home = () => {
               name="source"
               onChange={(e) => changeHandler(e)}
               className="block cursor-pointer border-b px-2 py-1 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-blue-500"
-              value={filters.source}
+              value={source}
             >
               <option value="All">All</option>
               {data[2].map(({ source }, index) => (
@@ -260,7 +249,7 @@ const Home = () => {
             ? data[1].map((entry, index) => (
                 <Card {...entry} key={entry.id} priority={index < 4} />
               ))
-            : [...(Array(filters.itemsPerPage) as undefined[])].map((e, i) => (
+            : [...(Array(itemsPerPage) as undefined[])].map((e, i) => (
                 <div key={i} className="py-6">
                   <Skeleton className="aspect-video w-full bg-gray-300" />
                   <Skeleton className="mt-5 h-5 w-[80%] rounded-full bg-gray-300" />
@@ -271,18 +260,15 @@ const Home = () => {
         </div>
         <div className="flex justify-between">
           <span
-            className={filters.page > 1 ? "cursor-pointer" : "invisible"}
+            className={page > 1 ? "cursor-pointer" : "invisible"}
             onClick={() => togglePage(false)}
           >{`< Prev`}</span>
           <span>
-            page: {filters.page} /{" "}
-            {Math.ceil(totalCount / filters.itemsPerPage)}
+            page: {page} / {Math.ceil(totalCount / itemsPerPage)}
           </span>
           <span
             className={
-              filters.itemsPerPage * filters.page <= totalCount
-                ? "cursor-pointer"
-                : "invisible"
+              itemsPerPage * page <= totalCount ? "cursor-pointer" : "invisible"
             }
             onClick={() => togglePage()}
           >{`Next >`}</span>
