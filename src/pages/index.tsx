@@ -51,14 +51,14 @@ const Home = () => {
   const totalCount = data ? data[0] : 0;
 
   useEffect(() => {
-    if (Object.keys(router.query).length === 0) return;
-
     setFilters((prevState) => {
       return {
         ...prevState,
-        ...(router.query.page && {
-          page: Number(routerQueryToString(router.query.page)),
-        }),
+        ...(router.query.page
+          ? {
+              page: Number(routerQueryToString(router.query.page)),
+            }
+          : { page: 1 }),
         ...(router.query.sorting && {
           sorting: routerQueryToString(
             router.query.sorting
@@ -235,8 +235,10 @@ const Home = () => {
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {Array.isArray(data) && !isLoading
-            ? data[1].map((entry, index) => <Card {...entry} key={entry.id} priority={index < 4} />)
-            : [...Array(filters.itemsPerPage) as undefined[]].map((e, i) => (
+            ? data[1].map((entry, index) => (
+                <Card {...entry} key={entry.id} priority={index < 4} />
+              ))
+            : [...(Array(filters.itemsPerPage) as undefined[])].map((e, i) => (
                 <div key={i} className="py-6">
                   <Skeleton className="aspect-video w-full bg-gray-300" />
                   <Skeleton className="mt-5 h-5 w-[80%] rounded-full bg-gray-300" />
