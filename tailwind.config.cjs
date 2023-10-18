@@ -7,6 +7,10 @@ module.exports = {
         sans: ['var(--font-sans)'],
         display: ['var(--font-display)'],
       },
+      colors: {
+        'custom-gray': '#f3f3f3',
+        'custom-dark': '#333',
+      }
     },
   },
   plugins: [],

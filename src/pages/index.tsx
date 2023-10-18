@@ -4,8 +4,8 @@ import { useRouter } from "next/router";
 import { api } from "../utils/api";
 import { clearFieldIfFalsey, routerQueryToString } from "../utils/helpers";
 import Card from "../components/Card";
-import Loading from "../components/Loading";
 import Layout from "../components/Layout";
+import { Skeleton } from "../components/Skeleton";
 
 const sortingVals = ["asc", "desc"] as const;
 
@@ -106,26 +106,21 @@ const Home = () => {
     }));
   };
 
-  const toggleNextPage = () => {
-    if (filters.itemsPerPage * (filters.page + 1) >= totalCount) return;
+  const togglePage = (next = true) => {
+    const notCondition = next
+      ? filters.itemsPerPage * (filters.page + 1) >= totalCount
+      : filters.page <= 1;
 
-    pushToRouter({ page: `${filters.page + 1}` });
+    const nextPage = next ? filters.page + 1 : filters.page - 1;
+
+    if (notCondition) return;
+
+    pushToRouter({ page: `${nextPage}` });
 
     setFilters({
       ...filters,
-      page: filters.page + 1,
+      page: nextPage,
     });
-  };
-
-  const togglePrevPage = () => {
-    if (filters.page > 1) {
-      pushToRouter({ page: `${filters.page - 1}` });
-
-      setFilters({
-        ...filters,
-        page: filters.page - 1,
-      });
-    }
   };
 
   return (
@@ -239,16 +234,21 @@ const Home = () => {
         )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {Array.isArray(data) && !isLoading ? (
-            data[1].map((entry) => <Card {...entry} key={entry.id} />)
-          ) : (
-            <Loading />
-          )}
+          {Array.isArray(data) && !isLoading
+            ? data[1].map((entry, index) => <Card {...entry} key={entry.id} priority={index < 4} />)
+            : [...Array(filters.itemsPerPage) as undefined[]].map((e, i) => (
+                <div key={i} className="py-6">
+                  <Skeleton className="aspect-video w-full bg-gray-300" />
+                  <Skeleton className="mt-5 h-5 w-[80%] rounded-full bg-gray-300" />
+                  <Skeleton className="mt-5 h-4 w-[50%]  bg-gray-300" />
+                  <Skeleton className="mt-5 h-4 w-[50%]  bg-gray-300" />
+                </div>
+              ))}
         </div>
         <div className="flex justify-between">
           <span
             className={filters.page > 1 ? "cursor-pointer" : "invisible"}
-            onClick={togglePrevPage}
+            onClick={() => togglePage(false)}
           >{`< Prev`}</span>
           <span>
             page: {filters.page} /{" "}
@@ -260,7 +260,7 @@ const Home = () => {
                 ? "cursor-pointer"
                 : "invisible"
             }
-            onClick={toggleNextPage}
+            onClick={() => togglePage()}
           >{`Next >`}</span>
         </div>
       </div>

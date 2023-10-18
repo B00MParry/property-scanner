@@ -1,8 +1,12 @@
 // Icons from https://heroicons.com/
 
 import { forwardRef } from "react";
+import { cn } from "../utils/helpers";
 
 const icons = {
+  "adjustments-horizontal": "M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75",
+  "magnifying-glass":
+    "M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z",
   "x-mark": "M6 18L18 6M6 6l12 12",
   "bars-3": "M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5",
   "chevron-left": "M15.75 19.5L8.25 12l7.5-7.5",
@@ -26,7 +30,7 @@ const Icon = forwardRef<SVGSVGElement, IconProps>(
       viewBox="0 0 24 24"
       strokeWidth="1.5"
       stroke="currentColor"
-      className={`h-6 w-6 ${className ? className : ""}`}
+      className={cn("h-6 w-6", className)}
       {...props}
       ref={ref}
     >

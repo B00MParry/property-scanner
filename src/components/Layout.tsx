@@ -14,7 +14,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`${fontVariables} font-sans`}>
+    <div
+      className={`${fontVariables} flex min-h-screen flex-col justify-between font-sans text-custom-dark`}
+    >
       <Navbar />
       <div className="flex-grow">{children}</div>
       <Footer />

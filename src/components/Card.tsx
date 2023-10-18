@@ -1,7 +1,9 @@
 import type { ProcessedProperty } from "@prisma/client";
 import ImageWithFallback from "./ImageWithFallback";
 
-type CardProps = Omit<ProcessedProperty, "createdAt" | "id" | "propertyId">;
+type CardProps = Omit<ProcessedProperty, "createdAt" | "id" | "propertyId"> & {
+  priority?: boolean
+};
 
 const Card = ({
   name,
@@ -12,6 +14,7 @@ const Card = ({
   bathrooms,
   source,
   link,
+  priority = false,
 }: CardProps) => {
   return (
     <a target="_blank" rel="noreferrer" className="group" href={link}>
@@ -25,6 +28,7 @@ const Card = ({
                   className="aspect-video w-full transform object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-110"
                   width="384"
                   height="216"
+                  priority={priority}
                   alt={name}
                 />
               )}
@@ -47,23 +51,26 @@ const Card = ({
                 </p>
               </div>
 
-              {name !== address && (
-                <div className="mt-2 border-t border-gray-200 pt-3 text-sm">
-                  <p className="text-sm text-gray-800">{address}</p>
+              {name !== address ||
+                (address !== "N/A" && (
+                  <div className="mt-2 border-t border-gray-200 pt-3 text-sm">
+                    <p className="text-sm text-gray-800">{address}</p>
+                  </div>
+                ))}
+
+              {bedroom && (
+                <div className="mt-2 border-t border-gray-200 pt-3">
+                  <p className="text-sm text-gray-800">Bedrooms: {bedroom}</p>
                 </div>
               )}
 
-              <div className="mt-2 border-t border-gray-200 pt-3">
-                <p className="text-sm text-gray-800">
-                  Bedrooms: {bedroom ? bedroom : "N/A"}
-                </p>
-              </div>
-
-              <div className="mt-2 border-t border-gray-200 pt-3">
-                <p className="text-sm text-gray-800">
-                  Bathrooms: {bathrooms ? bathrooms : "N/A"}
-                </p>
-              </div>
+              {bathrooms && (
+                <div className="mt-2 border-t border-gray-200 pt-3">
+                  <p className="text-sm text-gray-800">
+                    Bathrooms: {bathrooms}
+                  </p>
+                </div>
+              )}
 
               <div className="mt-2 border-t border-gray-200 pt-3">
                 <p className="text-sm text-gray-800">Source: {source}</p>
