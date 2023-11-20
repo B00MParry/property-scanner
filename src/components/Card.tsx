@@ -1,8 +1,9 @@
 import type { ProcessedProperty } from "@prisma/client";
 import ImageWithFallback from "./ImageWithFallback";
+import Icon from "./Icon";
 
 type CardProps = Omit<ProcessedProperty, "createdAt" | "id" | "propertyId"> & {
-  priority?: boolean
+  priority?: boolean;
 };
 
 const Card = ({
@@ -41,39 +42,54 @@ const Card = ({
                 {name}
               </h2>
 
-              <div className="mt-2 border-t border-gray-200 pt-3 text-sm">
-                <p className="text-sm text-gray-800">
-                  {price
-                    ? `€${price
-                        .toString()
-                        .replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`
-                    : "Price not found"}
-                </p>
+              {name !== address && address !== "N/A" && (
+                <div className="text-sm">
+                  <p className="text-sm text-gray-600">{address}</p>
+                </div>
+              )}
+
+              <div className="mt-2 border-t border-gray-200 pt-1.5">
+                <span className="rounded-md bg-gray-500 px-2 text-xs uppercase text-white">
+                  {source}
+                </span>
               </div>
 
-              {name !== address ||
-                (address !== "N/A" && (
-                  <div className="mt-2 border-t border-gray-200 pt-3 text-sm">
-                    <p className="text-sm text-gray-800">{address}</p>
-                  </div>
-                ))}
-
-              {bedroom && (
-                <div className="mt-2 border-t border-gray-200 pt-3">
-                  <p className="text-sm text-gray-800">Bedrooms: {bedroom}</p>
+              {(!!bedroom || !!bathrooms) && (
+                <div className="mt-2 flex border-t border-gray-200 pt-3">
+                  {!!bedroom && (
+                    <span className="flex items-center text-sm text-gray-800">
+                      <Icon
+                        name="bed"
+                        className="mr-2 h-5 w-5 fill-gray-600"
+                        strokeWidth="0"
+                      />
+                      {bedroom}
+                    </span>
+                  )}
+                  {!!bathrooms && (
+                    <span
+                      className={`flex items-center text-sm text-gray-800 ${
+                        !!bedroom ? "ml-4" : ""
+                      }`}
+                    >
+                      <Icon
+                        name="shower"
+                        className="mr-2 h-5 w-5 fill-gray-600"
+                        strokeWidth="0"
+                      />
+                      {bathrooms}
+                    </span>
+                  )}
                 </div>
               )}
-
-              {bathrooms && (
-                <div className="mt-2 border-t border-gray-200 pt-3">
-                  <p className="text-sm text-gray-800">
-                    Bathrooms: {bathrooms}
-                  </p>
-                </div>
-              )}
-
-              <div className="mt-2 border-t border-gray-200 pt-3">
-                <p className="text-sm text-gray-800">Source: {source}</p>
+              <div className="mt-2 border-t border-gray-200 pt-3 text-sm">
+                <p className="flex items-center text-lg text-gray-800">
+                  {price ? (
+                    `€${price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`
+                  ) : (
+                    <span className="text-sm">Price on request</span>
+                  )}
+                </p>
               </div>
             </div>
           </div>
