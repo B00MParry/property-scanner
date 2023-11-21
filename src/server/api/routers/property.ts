@@ -76,11 +76,7 @@ export const propertyRouter = createTRPCRouter({
           })
         ])
       } catch (error) {
-        console.log("error", error);
+        console.error("error", error);
       }
     }),
-
-  test: publicProcedure.query(() => {
-    return 'test'
-  })
 });

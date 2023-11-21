@@ -121,9 +121,7 @@ const Home = () => {
   };
 
   const togglePage = (next = true) => {
-    const notCondition = next
-      ? itemsPerPage * (page + 1) >= totalCount
-      : page <= 1;
+    const notCondition = next ? itemsPerPage * page >= totalCount : page <= 1;
 
     const nextPage = next ? page + 1 : page - 1;
 
@@ -253,8 +251,8 @@ const Home = () => {
                 <div key={i} className="py-6">
                   <Skeleton className="aspect-video w-full bg-gray-300" />
                   <Skeleton className="mt-5 h-5 w-[80%] rounded-full bg-gray-300" />
-                  <Skeleton className="mt-5 h-4 w-[50%]  bg-gray-300" />
-                  <Skeleton className="mt-5 h-4 w-[50%]  bg-gray-300" />
+                  <Skeleton className="mt-5 h-4 w-[50%] bg-gray-300" />
+                  <Skeleton className="mt-5 h-4 w-[50%] bg-gray-300" />
                 </div>
               ))}
         </div>
@@ -268,7 +266,7 @@ const Home = () => {
           </span>
           <span
             className={
-              itemsPerPage * page <= totalCount ? "cursor-pointer" : "invisible"
+              itemsPerPage * page < totalCount ? "cursor-pointer" : "invisible"
             }
             onClick={() => togglePage()}
           >{`Next >`}</span>
